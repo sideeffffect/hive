@@ -308,9 +308,6 @@ func (s *HubServer) handleAdminUsers(w http.ResponseWriter, r *http.Request) {
 	for _, name := range s.engagedHiveUsernames() {
 		engaged[name] = true
 	}
-	s.mu.RLock()
-	hives := append([]RegistryEntry(nil), s.registry.Hives...)
-	s.mu.RUnlock()
 	now := time.Now()
 	type adminUserView struct {
 		SaaSUser
@@ -325,9 +322,10 @@ func (s *HubServer) handleAdminUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	views := make([]adminUserView, 0, len(users))
 	for i := range users {
+		s.queueTopRepoRefresh(&users[i], now)
 		users[i].EncryptedToken = ""
 		name := users[i].GitHubUsername
-		topRepo := userTopRepoAssociation(&users[i], hives)
+		topRepo := userTopRepoAssociation(&users[i], nil)
 		views = append(views, adminUserView{
 			SaaSUser:   users[i],
 			StatusTier: userStatusTier(&users[i], live[name], engaged[name], now),

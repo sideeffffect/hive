@@ -311,6 +311,15 @@ type SaaSUser struct {
 	// login, …), folded hub-ward from the spoke audit logs (heartbeat
 	// UserLastActions) keeping the per-user maximum. Same absence semantics.
 	LastActionAt string `json:"last_action_at,omitempty"`
+
+	// TopRepo caches the repository this user contributes to most on their
+	// GitHub/GHE profile. It is refreshed asynchronously (not on every admin
+	// page render) by top_repo.go. Empty means unknown/unavailable and renders as
+	// an em dash.
+	TopRepo          string `json:"top_repo,omitempty"`
+	TopRepoURL       string `json:"top_repo_url,omitempty"`
+	TopRepoSource    string `json:"top_repo_source,omitempty"`
+	TopRepoUpdatedAt string `json:"top_repo_updated_at,omitempty"`
 }
 
 // Length caps for the admin-editable contact fields. These are free text
